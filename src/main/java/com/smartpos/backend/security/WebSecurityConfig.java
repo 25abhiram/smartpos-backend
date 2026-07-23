@@ -49,6 +49,7 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(authorizeRequests ->authorizeRequests
                         .requestMatchers("/api/auth/signin","/api/test/all").permitAll()
                         .requestMatchers("/api/auth/signup").hasRole("ADMIN")
+                        .requestMatchers("/api/reports/sales").hasRole("ADMIN")
                         .requestMatchers("/api/products/allproducts").hasAnyRole("ADMIN","CASHIER")
                         .requestMatchers("/api/orders/**").hasRole("CASHIER")
                         .requestMatchers("/api/users/**","/api/products/**","/api/branch/**").hasRole("ADMIN")
