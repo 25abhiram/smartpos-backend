@@ -44,4 +44,14 @@ public class ProductService {
         Product productData=productRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("Product not found with id "+id));
         productRepository.delete(productData);
     }
+
+    public List<String> getLowStockAlertsForAdmin(){
+        List<Product> lowStockProducts=productRepository.findLowStockProducts();
+
+        if (lowStockProducts.isEmpty()){
+            return List.of("All product stock levels are healthy.");
+        }
+
+        return lowStockProducts.stream().map(product -> "WARNING: Product '"+product.getName()+"' is low on stock! Current stock: "+product.getStockQuantity()+", Threshold stock level: "+product.getLowStockThreshold()).toList();
+    }
 }

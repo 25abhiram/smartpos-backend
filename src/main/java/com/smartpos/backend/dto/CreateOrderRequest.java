@@ -8,6 +8,4 @@ import java.util.List;
 public class CreateOrderRequest {
     private String paymentMethod;
     private List<OrderItemDto> orderItems;
-    private Long branchId;
-    private Long cashierId;
 }

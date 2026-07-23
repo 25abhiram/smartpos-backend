@@ -7,7 +7,10 @@ import com.smartpos.backend.repository.BranchRepository;
 import com.smartpos.backend.repository.OrderRepository;
 import com.smartpos.backend.repository.ProductRepository;
 import com.smartpos.backend.repository.UserRepository;
+import com.smartpos.backend.security.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -54,13 +57,14 @@ public class OrderService {
         order.setPaymentMethod(orderRequest.getPaymentMethod());
         order.setReferenceId(UUID.randomUUID().toString());
 
-        Branch branch=branchRepository.findById(orderRequest.getBranchId())
-                .orElseThrow(()->new RuntimeException("Branch not found"));
-        order.setBranch(branch);
+        Authentication authentication= SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl userDetails=(UserDetailsImpl) authentication.getPrincipal();
 
-        User cashier=userRepository.findById(orderRequest.getCashierId())
-                .orElseThrow(()->new RuntimeException("Cashier not found"));
+        User cashier=userDetails.getUser();
         order.setCashier(cashier);
+
+        Branch branch=cashier.getBranch();
+        order.setBranch(branch);
 
         return orderRepository.save(order);
     }
