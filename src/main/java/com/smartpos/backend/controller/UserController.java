@@ -1,5 +1,6 @@
 package com.smartpos.backend.controller;
 
+import com.smartpos.backend.dto.UpdateUserRequest;
 import com.smartpos.backend.entity.User;
 import com.smartpos.backend.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +32,8 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public User updateUser(@PathVariable Long id,@RequestBody User user){
-        return userService.updateUser(id,user);
+    public User updateUser(@PathVariable Long id,@RequestBody UpdateUserRequest userRequest){
+        return userService.updateUser(id,userRequest);
     }
 
     @DeleteMapping("/{id}")
