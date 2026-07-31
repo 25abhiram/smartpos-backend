@@ -4,6 +4,7 @@ import com.smartpos.backend.dto.UpdateUserRequest;
 import com.smartpos.backend.entity.Branch;
 import com.smartpos.backend.entity.Role;
 import com.smartpos.backend.entity.User;
+import com.smartpos.backend.exceptions.DuplicateResourceException;
 import com.smartpos.backend.exceptions.ResourceNotFoundException;
 import com.smartpos.backend.repository.BranchRepository;
 import com.smartpos.backend.repository.RoleRepository;
@@ -125,5 +126,107 @@ public class UserServiceTest {
         verify(branchRepository,times(1)).findById(2L);
         verify(roleRepository,times(1)).findById(3L);
         verify(userRepository,times(1)).save(existingUser);
+    }
+
+    @Test
+    void updateUser_WhenUserDoesNotExist_ShouldThrowException(){
+        Long userId=1L;
+        UpdateUserRequest request=new UpdateUserRequest();
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        ResourceNotFoundException exception=assertThrows(ResourceNotFoundException.class,()->userService.updateUser(userId,request));
+
+        assertEquals("User not found with id "+userId,exception.getMessage());
+        verify(userRepository,times(1)).findById(userId);
+        verifyNoMoreInteractions(branchRepository,roleRepository,userRepository);
+    }
+
+    @Test
+    void updateUser_WhenDuplicateUsername_ShouldThrowDuplicateResourceException(){
+        Long userId=1L;
+        User existingUser=new User();
+        existingUser.setId(userId);
+        existingUser.setUsername("oldName");
+
+        UpdateUserRequest request=new UpdateUserRequest();
+        request.setUsername("takenName");
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
+        when(userRepository.existsByUsername("takenName")).thenReturn(true);
+
+        DuplicateResourceException exception=assertThrows(DuplicateResourceException.class,()->userService.updateUser(userId,request));
+
+        assertEquals("Username 'takenName' is already taken.",exception.getMessage());
+        verify(userRepository,times(1)).findById(userId);
+        verify(userRepository,times(1)).existsByUsername("takenName");
+        verifyNoMoreInteractions(branchRepository,roleRepository);
+        verify(userRepository,never()).save(any(User.class));
+    }
+
+    @Test
+    void updateUser_WhenBranchNotFound_ShouldThrowResourceNotFoundException(){
+        Long userId=1L;
+        User existingUser=new User();
+        existingUser.setId(userId);
+
+        UpdateUserRequest request=new UpdateUserRequest();
+        request.setBranchId(2L);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
+        when(branchRepository.findById(2L)).thenReturn(Optional.empty());
+
+        ResourceNotFoundException exception=assertThrows(ResourceNotFoundException.class,()->userService.updateUser(userId,request));
+
+        assertEquals("Branch not found with id 2",exception.getMessage());
+        verify(userRepository,times(1)).findById(userId);
+        verify(branchRepository,times(1)).findById(2L);
+        verify(userRepository,never()).save(any(User.class));
+    }
+
+    @Test
+    void updateUser_WhenRoleDoesNotExist_ShouldThrowException(){
+        Long userId=1L;
+        User existingUser=new User();
+        existingUser.setId(userId);
+
+        UpdateUserRequest request=new UpdateUserRequest();
+        request.setRoleIds(Set.of(2L));
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(existingUser));
+        when(roleRepository.findById(2L)).thenReturn(Optional.empty());
+
+        ResourceNotFoundException exception=assertThrows(ResourceNotFoundException.class,()->userService.updateUser(userId,request));
+
+        assertEquals("Role not found with id 2",exception.getMessage());
+        verify(userRepository,times(1)).findById(userId);
+        verify(roleRepository,times(1)).findById(2L);
+        verify(userRepository,never()).save(any(User.class));
+    }
+
+    @Test
+    void deleteUserById_WhenUserExists_ShouldDeleteUser(){
+        Long userId=1L;
+        User mockUser=new User();
+        mockUser.setId(userId);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
+        doNothing().when(userRepository).delete(mockUser);
+
+        userService.deleteUserById(userId);
+
+        verify(userRepository,times(1)).findById(userId);
+        verify(userRepository,times(1)).delete(mockUser);
+    }
+
+    @Test
+    void deleteUserById_WhenUserDoesNotExist_ShouldThrowException(){
+        Long userId=1L;
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        ResourceNotFoundException exception=assertThrows(ResourceNotFoundException.class,()->userService.deleteUserById(userId));
+
+        assertEquals("User not found with id "+userId,exception.getMessage());
+        verify(userRepository,times(1)).findById(userId);
+        verify(userRepository,never()).delete(any(User.class));
     }
 }
