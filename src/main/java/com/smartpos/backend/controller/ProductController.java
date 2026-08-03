@@ -1,7 +1,10 @@
 package com.smartpos.backend.controller;
 
+import com.smartpos.backend.dto.CreateProductRequest;
+import com.smartpos.backend.dto.UpdateProductRequest;
 import com.smartpos.backend.entity.Product;
 import com.smartpos.backend.service.ProductService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,13 +29,13 @@ public class ProductController {
     }
 
     @PostMapping
-    public Product createProduct(@RequestBody Product product){
-        return productService.createProduct(product);
+    public Product createProduct(@Valid @RequestBody CreateProductRequest productRequest){
+        return productService.createProduct(productRequest);
     }
 
     @PutMapping("/{id}")
-    public Product updateProduct(@PathVariable Long id,@RequestBody Product product){
-        return productService.updateProduct(id,product);
+    public Product updateProduct(@PathVariable Long id,@Valid @RequestBody UpdateProductRequest productRequest){
+        return productService.updateProduct(id,productRequest);
     }
 
     @DeleteMapping("/{id}")
