@@ -1,5 +1,7 @@
 package com.smartpos.backend.service;
 
+import com.smartpos.backend.dto.CreateBranchRequest;
+import com.smartpos.backend.dto.UpdateBranchRequest;
 import com.smartpos.backend.entity.Branch;
 import com.smartpos.backend.exceptions.ResourceNotFoundException;
 import com.smartpos.backend.repository.BranchRepository;
@@ -12,7 +14,11 @@ import java.util.List;
 public class BranchService {
     @Autowired
     private BranchRepository branchRepository;
-    public Branch createBranch(Branch branch){
+
+    public Branch createBranch(CreateBranchRequest request){
+        Branch branch = new Branch();
+        branch.setName(request.getName());
+        branch.setAddress(request.getAddress());
         return branchRepository.save(branch);
     }
 
@@ -25,10 +31,19 @@ public class BranchService {
         return branchRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("Branch not found with id "+id));
     }
 
-    public Branch updateBranch(Long id,Branch branch){
+    public Branch updateBranch(Long id, UpdateBranchRequest request){
         Branch branchData=branchRepository.findById(id).orElseThrow(()->new ResourceNotFoundException("Branch not found with id "+id));
-        branchData.setName(branch.getName());
-        branchData.setAddress(branch.getAddress());
+
+        String name= request.getName();
+        if (name!=null && !name.trim().isEmpty()){
+            branchData.setName(name);
+        }
+
+        String address=request.getAddress();
+        if (address!=null && !address.trim().isEmpty()){
+            branchData.setAddress(address);
+        }
+
         return branchRepository.save(branchData);
     }
 

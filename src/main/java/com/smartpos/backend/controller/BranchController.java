@@ -1,7 +1,10 @@
 package com.smartpos.backend.controller;
 
+import com.smartpos.backend.dto.CreateBranchRequest;
+import com.smartpos.backend.dto.UpdateBranchRequest;
 import com.smartpos.backend.entity.Branch;
 import com.smartpos.backend.service.BranchService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,8 +19,8 @@ public class BranchController {
     private BranchService branchService;
 
     @PostMapping
-    public ResponseEntity<Branch> createBranch(@RequestBody Branch branch){
-        Branch createdBranch=branchService.createBranch(branch);
+    public ResponseEntity<Branch> createBranch(@Valid @RequestBody CreateBranchRequest request){
+        Branch createdBranch=branchService.createBranch(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdBranch);
     }
 
@@ -34,15 +37,15 @@ public class BranchController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Branch> updateBranch(@PathVariable Long id,@RequestBody Branch branch){
-        Branch updatedBranch=branchService.updateBranch(id,branch);
+    public ResponseEntity<Branch> updateBranch(@PathVariable Long id,@RequestBody UpdateBranchRequest request){
+        Branch updatedBranch=branchService.updateBranch(id,request);
         return ResponseEntity.ok(updatedBranch);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteBranchById(@PathVariable Long id){
+    public ResponseEntity<Void> deleteBranchById(@PathVariable Long id){
         branchService.deleteBranchById(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
 }
