@@ -1,10 +1,12 @@
 package com.smartpos.backend.controller;
 
 import com.smartpos.backend.dto.JwtResponse;
+import com.smartpos.backend.dto.LoginRequest;
 import com.smartpos.backend.dto.SignupRequest;
 import com.smartpos.backend.entity.User;
 
 import com.smartpos.backend.service.AuthService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,13 +21,13 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/signin")
-    public ResponseEntity<?> authenticateUser(@RequestBody User user){
-        JwtResponse response=authService.authenticateUser(user);
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest){
+        JwtResponse response=authService.authenticateUser(loginRequest);
         return ResponseEntity.ok(response);
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<?> registerUser(@RequestBody SignupRequest signupRequest){
+    public ResponseEntity<?> registerUser(@Valid @RequestBody SignupRequest signupRequest){
         String response= authService.registerUser(signupRequest);
         if (response.startsWith("Error:")){
             return ResponseEntity.badRequest().body(response);

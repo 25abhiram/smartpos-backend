@@ -1,6 +1,7 @@
 package com.smartpos.backend.service;
 
 import com.smartpos.backend.dto.JwtResponse;
+import com.smartpos.backend.dto.LoginRequest;
 import com.smartpos.backend.dto.SignupRequest;
 import com.smartpos.backend.entity.Branch;
 import com.smartpos.backend.entity.ERole;
@@ -46,9 +47,9 @@ public class AuthService {
     @Autowired
     JwtUtil jwtUtils;
 
-    public JwtResponse authenticateUser(User user){
+    public JwtResponse authenticateUser(LoginRequest loginRequest){
         Authentication authentication=authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(user.getUsername(),user.getPassword()));
+                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),loginRequest.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         UserDetailsImpl userDetails=(UserDetailsImpl) authentication.getPrincipal();
         String jwt=jwtUtils.generateToken(userDetails);
