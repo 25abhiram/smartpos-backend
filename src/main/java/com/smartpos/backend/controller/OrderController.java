@@ -3,6 +3,7 @@ package com.smartpos.backend.controller;
 import com.smartpos.backend.dto.CreateOrderRequest;
 import com.smartpos.backend.entity.Order;
 import com.smartpos.backend.service.OrderService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,7 +15,7 @@ public class OrderController {
     private OrderService orderService;
 
     @PostMapping
-    public ResponseEntity<?> createOrder(@RequestBody CreateOrderRequest orderRequest){
+    public ResponseEntity<?> createOrder(@Valid @RequestBody CreateOrderRequest orderRequest){
         Order order=orderService.createOrder(orderRequest);
         return ResponseEntity.ok().body(order);
     }
